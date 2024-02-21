@@ -1,39 +1,59 @@
-import React, { useEffect, useState } from "react";
-import Button from 'react-bootstrap/Button';
+import React, { useState, useEffect } from "react";
+import { FaSearch } from "react-icons/fa";
 import { Modal, Container, Table } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
 import axios from "axios";
 import './UserForm.css';
-import { Searchbar } from "./Searchbar";
+import { MdEditSquare, MdOutlineAutoDelete } from "react-icons/md";
 
 const App = () => {
     const [users, setUsers] = useState([]);
     const [show, setShow] = useState(false);
-    const [editingUser, setEditingUser] = useState(null); 
+    const [editingUser, setEditingUser] = useState(null);
     const [formData, setFormData] = useState({
+        id: "",
         name: "",
         email: "",
         gender: "",
         status: "",
     });
+    const [searchInput, setSearchInput] = useState("");
 
-    const handleClose = () => {
-        setShow(false);
-        setEditingUser(null);
-        setFormData({
-            name: "",
-            email: "",
-            gender: "",
-            status: "",
-        });
+    const handleClose = () => setShow(false);
+
+    const handleFormSubmit = async (e) => {
+        console.log("Form data:", formData); // Log form data before submission
+
+        try {
+            const response = await axios.post(
+                "https://gorest.co.in/public/v2/users",
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer 79a3b1d569005f3bb059d351efbfc433938986d1c759d0c23bee1a7f32e8d27f`,
+                    },
+                }
+            );
+            console.log("API Response:", response.data); 
+
+            // Reset form data after successful submission
+            setFormData({
+                id: "",
+                name: "",
+                email: "",
+                gender: "",
+                status: "",
+            });
+            setShow(false); 
+        } catch (error) {
+            console.error("Error adding user:", error); 
+        }
     };
 
     const handleShow = () => setShow(true);
 
     const handleInputChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value,
-        });
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     const handleEdit = (user) => {
@@ -62,7 +82,7 @@ const App = () => {
                         return user.id === editingUser.id ? { ...user, ...formData } : user;
                     });
                     setUsers(updatedUsers);
-                    handleClose();
+                    setShow(false); // Close the modal after successful update
                 } else {
                     console.error("Failed to update user. Please try again later.");
                 }
@@ -111,50 +131,69 @@ const App = () => {
         alert(errorMessage);
     }
 
+    const handleSearchChange = (value) => {
+        setSearchInput(value);
+    };
+
+    const filteredUsers = users.filter(user =>
+        user.name.toLowerCase().includes(searchInput.toLowerCase())
+    );
+
     return (
         <Container>
             <h3 className="pt-3 pb-2">Dashboard</h3>
-            <Button className="mb-3" variant="danger" onClick={handleShow}>
-                Add New  User
-            </Button>
+            <div className="row align-items-center mb-3">
+    <div className="col-md-auto mb-3 mb-md-0">
+        <Button variant="danger" onClick={handleShow}>
+            Add New User
+        </Button>
+    </div>
+    <div className="col">
+        <div className="input-search input-wrapper">
+            <FaSearch id="search-icon" />
+            <input
+                className="input-search"
+                placeholder="Type to Search... "
+                value={searchInput}
+                onChange={(e) => handleSearchChange(e.target.value)}
+            />
+        </div>
+    </div>
+</div>
 
-            <div>
-                <Searchbar/>
-            </div>
 
             <Modal show={show} onHide={handleClose} animation={false}>
                 <Modal.Header closeButton>
                     <Modal.Title>{editingUser ? 'Edit User' : 'New User'}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-    <div>
-        <h5>ID</h5>
-        <input className="input-field" type="id" name="id" value={formData.id} onChange={handleInputChange} />
-    </div>
-    <div>
-        <h5>Name</h5>
-        <input className="input-field" type="text" name="name" value={formData.name} onChange={handleInputChange} />
-    </div>
-    <div>
-        <h5>Email</h5>
-        <input className="input-field" type="email" name="email" value={formData.email} onChange={handleInputChange} />
-    </div>
-    <div>
-        <h5>Gender</h5>
-        <input className="input-field" type="gender" name="gender" value={formData.gender} onChange={handleInputChange} />
-    </div>
-    <div>
-        <h5>Status</h5>
-        <input className="input-field" type="status" name="status" value={formData.status} onChange={handleInputChange} />
-    </div>
-</Modal.Body>
-
+                    <div>
+                        <h5>ID</h5>
+                        <input className="input-field" type="id" name="id" value={formData.id} onChange={handleInputChange} />
+                    </div>
+                    <div>
+                        <h5>Name</h5>
+                        <input className="input-field" type="text" name="name" value={formData.name} onChange={handleInputChange} />
+                    </div>
+                    <div>
+                        <h5>Email</h5>
+                        <input className="input-field" type="email" name="email" value={formData.email} onChange={handleInputChange} />
+                    </div>
+                    <div>
+                        <h5>Gender</h5>
+                        <input className="input-field" type="gender" name="gender" value={formData.gender} onChange={handleInputChange} />
+                    </div>
+                    <div>
+                        <h5>Status</h5>
+                        <input className="input-field" type="status" name="status" value={formData.status} onChange={handleInputChange} />
+                    </div>
+                </Modal.Body>
 
                 <Modal.Footer>
                     <Button variant="danger" onClick={handleClose}>
                         Close
                     </Button>
-                    <Button variant="success" onClick={editingUser ? handleSave : handleClose}>
+                    <Button variant="success" onClick={editingUser ? handleSave : handleFormSubmit}>
                         {editingUser ? 'Save Changes' : 'Add User'}
                     </Button>
                 </Modal.Footer>
@@ -164,29 +203,30 @@ const App = () => {
                 <Table striped bordered hover responsive>
                     <thead>
                         <tr>
+                        <th>Edit</th>
+                            <th>Delete</th>
                             <th>id</th>
                             <th>name</th>
                             <th>email</th>
                             <th>gender</th>
                             <th>Status</th>
-                            <th>Edit</th>
-                            <th>Delete</th>
+                            
                         </tr>
                     </thead>
                     <tbody>
-                        {users.map(user => (
+                        {filteredUsers.map(user => (
                             <tr key={user.id}>
+                                  <td>
+                                    <Button variant="success" onClick={() => handleEdit(user)}><MdEditSquare /></Button>
+                                </td>
+                                <td>
+                                    <Button variant="danger" onClick={() => deleteStudent(user.id)}><MdOutlineAutoDelete /></Button>
+                                </td>
                                 <td>{user.id}</td>
                                 <td>{user.name}</td>
                                 <td>{user.email}</td>
                                 <td>{user.gender}</td>
                                 <td>{user.status}</td>
-                                <td>
-                                    <Button variant="success" onClick={() => handleEdit(user)}>Edit</Button>
-                                </td>
-                                <td>
-                                    <Button variant="danger" onClick={() => deleteStudent(user.id)}>Delete</Button>
-                                </td>
                             </tr>
                         ))}
                     </tbody>

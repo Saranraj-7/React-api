@@ -18,7 +18,7 @@ const UserForm = ({ authToken }) => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form data:", formData); // Log form data before submission
+    console.log("Form data:", formData); 
 
     try {
       const response = await axios.post(
@@ -30,9 +30,9 @@ const UserForm = ({ authToken }) => {
           },
         }
       );
-      console.log("API Response:", response.data); // Log API response
+      console.log("API Response:", response.data); 
 
-      // Reset form data after successful submission
+      // Reset form data after successful 
       setFormData({
         name: "",
         email: "",
@@ -40,7 +40,7 @@ const UserForm = ({ authToken }) => {
         status: "",
       });
     } catch (error) {
-      console.error("Error adding user:", error); // Log any errors
+      console.error("Error adding user:", error); 
     }
   };
 
