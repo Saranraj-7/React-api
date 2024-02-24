@@ -10,7 +10,7 @@ function App() {
   return (
 <div className='App'>
   <Row>
-        <Col xs={2} className=''><Sidebar/>
+        <Col xs={2} className=''><Sidebar />
         </Col>
         <Col xs={9} className=''><UsersTable/>
         </Col>
@@ -21,3 +21,9 @@ function App() {
 }
 
 export default App;
+
+
+
+
+
+

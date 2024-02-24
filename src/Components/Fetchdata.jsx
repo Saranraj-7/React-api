@@ -5,6 +5,9 @@ import Button from 'react-bootstrap/Button';
 import axios from "axios";
 import './UserForm.css';
 import { MdEditSquare, MdOutlineAutoDelete } from "react-icons/md";
+import AddUserForm from './AddUserForm';
+import Pagination from 'react-bootstrap/Pagination';
+import { Link } from "react-router-dom";
 
 const App = () => {
     const [users, setUsers] = useState([]);
@@ -18,8 +21,24 @@ const App = () => {
         status: "",
     });
     const [searchInput, setSearchInput] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(5); 
 
     const handleClose = () => setShow(false);
+
+    useEffect(() => {
+        axios.get('https://gorest.co.in/public/v2/users', {
+            headers: {
+                Authorization: `Bearer 79a3b1d569005f3bb059d351efbfc433938986d1c759d0c23bee1a7f32e8d27f`
+            }
+        })
+            .then(res => {
+                setUsers(res.data);
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+    }, []);
 
     const handleFormSubmit = async (e) => {
         console.log("Form data:", formData); // Log form data before submission
@@ -34,7 +53,7 @@ const App = () => {
                     },
                 }
             );
-            console.log("API Response:", response.data); 
+            console.log("API Response:", response.data)
 
             // Reset form data after successful submission
             setFormData({
@@ -44,9 +63,9 @@ const App = () => {
                 gender: "",
                 status: "",
             });
-            setShow(false); 
+            setShow(false);
         } catch (error) {
-            console.error("Error adding user:", error); 
+            console.error("Error adding user:", error);
         }
     };
 
@@ -57,7 +76,7 @@ const App = () => {
     };
 
     const handleEdit = (user) => {
-        setEditingUser(user);
+         setEditingUser(user);
         setFormData({
             id: user.id,
             name: user.name,
@@ -76,13 +95,14 @@ const App = () => {
                         Authorization: `Bearer 79a3b1d569005f3bb059d351efbfc433938986d1c759d0c23bee1a7f32e8d27f`
                     }
                 });
+
                 if (response.status === 200) {
                     console.log("User updated successfully:", response.data);
                     const updatedUsers = users.map(user => {
                         return user.id === editingUser.id ? { ...user, ...formData } : user;
                     });
                     setUsers(updatedUsers);
-                    setShow(false); // Close the modal after successful update
+                    setShow(false);
                 } else {
                     console.error("Failed to update user. Please try again later.");
                 }
@@ -94,20 +114,6 @@ const App = () => {
         }
     };
 
-    useEffect(() => {
-        axios.get('https://gorest.co.in/public/v2/users', {
-            headers: {
-                Authorization: `Bearer 79a3b1d569005f3bb059d351efbfc433938986d1c759d0c23bee1a7f32e8d27f`
-            }
-        })
-            .then(res => {
-                setUsers(res.data);
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-            });
-    }, []);
-
     const deleteStudent = async (id) => {
         try {
             const response = await axios.delete(`https://gorest.co.in/public/v2/users/${id}`, {
@@ -115,9 +121,12 @@ const App = () => {
                     Authorization: `Bearer 79a3b1d569005f3bb059d351efbfc433938986d1c759d0c23bee1a7f32e8d27f`
                 }
             });
+
+
             if (response.status === 200 || response.status === 204) {
                 alert("User deleted successfully.");
                 setUsers(prevUsers => prevUsers.filter(user => user.id !== id));
+
             } else {
                 handleDeleteError("Failed to delete user. Please try again later.");
             }
@@ -139,32 +148,42 @@ const App = () => {
         user.name.toLowerCase().includes(searchInput.toLowerCase())
     );
 
+    const indexOfLastUser = currentPage * pageSize;
+    const indexOfFirstUser = indexOfLastUser - pageSize;
+    const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+    const totalPages = Math.ceil(filteredUsers.length / pageSize);
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
+
     return (
         <Container>
-            <h3 className="pt-3 pb-2">Dashboard</h3>
+            <h4 className="pt-3 pb-2">Dashboard</h4>
             <div className="row align-items-center mb-3">
-    <div className="col-md-auto mb-3 mb-md-0">
-        <Button variant="danger" onClick={handleShow}>
-            Add New User
-        </Button>
-    </div>
-    <div className="col">
-        <div className="input-search input-wrapper">
-            <FaSearch id="search-icon" />
-            <input
-                className="input-search"
-                placeholder="Type to Search... "
-                value={searchInput}
-                onChange={(e) => handleSearchChange(e.target.value)}
-            />
-        </div>
-    </div>
+                <div className="col-md-auto mb-3 mb-md-0">
+                </div>
+                <div className="row flex-row justify-content-between">
+                    <div className="col-3">
+                    <div className="input-search input-wrapper">
+    <FaSearch id="search-icon" />
+    <input
+        className="input-search"
+        placeholder="Type to Search... "
+        value={searchInput}
+        onChange={(e) => handleSearchChange(e.target.value)}
+    />
 </div>
+
+                    </div>
+                    <div className="col-2"><AddUserForm /></div>
+                </div>
+            </div>
 
 
             <Modal show={show} onHide={handleClose} animation={false}>
                 <Modal.Header closeButton>
-                    <Modal.Title>{editingUser ? 'Edit User' : 'New User'}</Modal.Title>
+                    <Modal.Title>{editingUser && 'Edit User'}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <div>
@@ -203,36 +222,49 @@ const App = () => {
                 <Table striped bordered hover responsive>
                     <thead>
                         <tr>
-                        <th>Edit</th>
-                            <th>Delete</th>
+                            <th>Edit</th>
                             <th>id</th>
                             <th>name</th>
                             <th>email</th>
                             <th>gender</th>
                             <th>Status</th>
-                            
+                            <th>Delete</th>
                         </tr>
                     </thead>
                     <tbody>
                         {filteredUsers.map(user => (
                             <tr key={user.id}>
-                                  <td>
-                                    <Button variant="success" onClick={() => handleEdit(user)}><MdEditSquare /></Button>
-                                </td>
                                 <td>
-                                    <Button variant="danger" onClick={() => deleteStudent(user.id)}><MdOutlineAutoDelete /></Button>
+                                    <Button variant="success" onClick={() => handleEdit(user)}><MdEditSquare /></Button>
                                 </td>
                                 <td>{user.id}</td>
                                 <td>{user.name}</td>
                                 <td>{user.email}</td>
                                 <td>{user.gender}</td>
                                 <td>{user.status}</td>
+                                <td>
+                                    <Button variant="danger" onClick={() => deleteStudent(user.id)}><MdOutlineAutoDelete /></Button>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
                 </Table>
             </div>
+            <div>
+                {/* <div className='pt-3 col-1  d-flex justify-content-center'>
+                    {[...Array(totalPages).keys()].map((page) => (
+                        <Pagination>
+                        {[...Array(totalPages).keys()].map((page) => (
+                            <Pagination.Item key={page + 1} active={page + 1 === currentPage} onClick={() => handlePageChange(page + 1)}>
+                                {page + 1}
+                            </Pagination.Item>
+                        ))}
+                    </Pagination>                   
+                     ))}
+                </div> */}
+            </div>
         </Container>
+
     );
 }
 
