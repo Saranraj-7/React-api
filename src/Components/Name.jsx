@@ -1,10 +1,10 @@
+
 import React, { useState, useEffect } from "react";
 import { Modal, Container, Form, Button } from 'react-bootstrap';
 import axios from "axios";
 import Accordion from 'react-bootstrap/Accordion';
 import './UserForm.css';
 import { Navigate, useNavigate } from "react-router-dom";
-import { getUsers } from './api'; // Import API functions
 
 const Id = () => {
     const [users, setUsers] = useState([]);
@@ -15,17 +15,18 @@ const Id = () => {
     const handleClose = () => setShow(false);
 
     useEffect(() => {
-        fetchData();
+        axios.get('https://gorest.co.in/public/v2/users', {
+            headers: {
+                Authorization: `Bearer 79a3b1d569005f3bb059d351efbfc433938986d1c759d0c23bee1a7f32e8d27f`
+            }
+        })
+            .then(res => {
+                setUsers(res.data);
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
     }, []);
-
-    const fetchData = async () => {
-        try {
-            const userData = await getUsers(); 
-            setUsers(userData);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
-    };
 
     const handleShow = () => setShow(true);
     const filteredUsers = users.filter(user =>
@@ -41,24 +42,24 @@ const Id = () => {
         setSearchInput(value);
     };
 
+
     return (
         <Container>
             <div className="row align-items-center mb-3">
                 <div className="col">
                     <Accordion defaultActiveKey="0" className="custom-accordion">
                         <Accordion.Item eventKey="1">
-                            <Accordion.Header className="accordion-header">Select User ID</Accordion.Header>
+                            <Accordion.Header className="accordion-header">Name</Accordion.Header>
                             <Accordion.Body>
                                 {filteredUsers.map(user => (
                                     <Form.Check
                                         type="radio"
-                                        id={`user-${user.id}`}
-                                        key={user.id}
-                                        label={`User ID: ${user.id}`}
+                                        id={`user-${user.name}`}
+                                        key={user.name}
+                                        label={user.name}
                                         value={user.id}
-                                        checked={selectedUserId === user.id}
+                                        checked={selectedUserId === user.name}
                                         onChange={() => handleUserSelect(user.id)}
-                                        className="user-radio"
                                     />
                                 ))}
                             </Accordion.Body>

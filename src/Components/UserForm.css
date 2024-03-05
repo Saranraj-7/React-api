@@ -31,9 +31,6 @@ button {
   cursor: pointer;
 }
 
-button:hover {
-  background-color: #0056b3;
-}
 
 
 /* App.css */
@@ -73,7 +70,7 @@ button:hover {
   padding: 10px;
   transition: background-color 0.3s ease;
   border-radius: 5px;
-  font-size: 20px;
+  font-size: 18px;
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -98,22 +95,110 @@ button:hover {
   /* Adjust the font size as needed */
 }
 
-
-.input-search {
-  background-color: transparent;
-  border: none;
-  height: 100%;
-  font-size: 1.25rem;
-  width: 100%;
+.input-wrapper {
+  position: relative;
 }
 
-.input-wrapper {
-  background-color: white;
+#search-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 10px;
+}
+
+.input-search {
   width: 100%;
-  border-radius: 10px;
-  height: 2.5rem;
-  padding: 0 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  line-height: 1.5;
+  height: 40px;
+}
+
+
+
+.side-hov {
+  background-color: white;
+  color: black;
+  border: 2px solid #04AA6D;
+}
+
+.nopage-container {
   display: flex;
+  justify-content: center;
   align-items: center;
-  box-shadow: 0px 0 8px #ddd;
+  height: 100vh;
+}
+
+.nopage-content {
+  text-align: center;
+}
+
+h3 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.page-error {
+  font-size: 100px;
+  color: #ff5252;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+span {
+  display: inline-block;
+  padding: 5px;
+}
+
+.page-error2 {
+  font-size: 18px;
+  color: #666;
+}
+
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination-button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 0 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.pagination-button:hover {
+  background-color: #45a049;
+}
+
+.pagination-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.pagination-current {
+  background-color: #2196f3;
+  color: white;
+}
+
+.pagination-dots {
+  margin: 0 5px;
+  color: #666666;
+}
+
+.pagination-dots:hover {
+  cursor: default;
+}
+
+
+.custom-accordion .accordion-item {
+  border: none;
 }
