@@ -1,18 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Container, Form, Button } from 'react-bootstrap';
-import axios from "axios";
 import Accordion from 'react-bootstrap/Accordion';
 import './UserForm.css';
-import { Navigate, useNavigate } from "react-router-dom";
-import { getUsers } from './api'; // Import API functions
-
+import {  useNavigate } from "react-router-dom";
+import Api from "../Constant/api";
 const Id = () => {
     const [users, setUsers] = useState([]);
-    const [show, setShow] = useState(false);
     const [selectedUserId, setSelectedUserId] = useState(null);
     const navigate = useNavigate();
     const [searchInput, setSearchInput] = useState("");
-    const handleClose = () => setShow(false);
+
+    
+   
+    const getUsers = async () => {
+        try {
+            const response = await Api.getCustomersData()
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching users:', error);
+            throw error;
+        }
+    };
 
     useEffect(() => {
         fetchData();
@@ -27,7 +35,6 @@ const Id = () => {
         }
     };
 
-    const handleShow = () => setShow(true);
     const filteredUsers = users.filter(user =>
         user.name.toLowerCase().includes(searchInput.toLowerCase())
     );
@@ -35,10 +42,6 @@ const Id = () => {
     const handleUserSelect = (userId) => {
         setSelectedUserId(userId);
         navigate(`/Userdetails/${userId}`);
-    };
-
-    const handleSearchChange = (value) => {
-        setSearchInput(value);
     };
 
     return (

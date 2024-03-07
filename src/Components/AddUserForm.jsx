@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
 
 const AddUserForm = ({ onAdd }) => {
   const [show, setShow] = useState();
@@ -44,12 +43,12 @@ const AddUserForm = ({ onAdd }) => {
                 <div>
                   <h5>Name</h5>
                   <Field className="input-field" type="text" name="name" />
-                  <ErrorMessage name="name"  className="error" />
+                  <ErrorMessage name="name" component="div" className="error" />
                 </div>
                 <div>
                   <h5>Email</h5>
                   <Field className="input-field" type="email" name="email" />
-                 
+                  <ErrorMessage name="email" component="div" className="error" />
                 </div>
                 <div>
                   <h5>Gender</h5>

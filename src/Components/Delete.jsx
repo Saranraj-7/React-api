@@ -7,7 +7,6 @@ const DeleteButton = ({ id, onDelete }) => {
         onDelete(id);
     };
 
-    
 
     return (
         <Button variant="danger" onClick={handleClick}>

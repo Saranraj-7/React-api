@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect } from "react";
 import { Modal, Container, Form, Button } from 'react-bootstrap';
-import axios from "axios";
 import Accordion from 'react-bootstrap/Accordion';
 import './UserForm.css';
-import { Navigate, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
+import Api from "../Constant/api";
 
 const Id = () => {
     const [users, setUsers] = useState([]);
@@ -12,23 +12,33 @@ const Id = () => {
     const [selectedUserId, setSelectedUserId] = useState(null);
     const navigate = useNavigate();
     const [searchInput, setSearchInput] = useState("");
-    const handleClose = () => setShow(false);
+ 
+
+    const getUsers = async () => {
+        try {
+            const response = await Api.getCustomersData()
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching users:', error);
+            throw error;
+        }
+    };
 
     useEffect(() => {
-        axios.get('https://gorest.co.in/public/v2/users', {
-            headers: {
-                Authorization: `Bearer 79a3b1d569005f3bb059d351efbfc433938986d1c759d0c23bee1a7f32e8d27f`
-            }
-        })
-            .then(res => {
-                setUsers(res.data);
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-            });
+        fetchData();
     }, []);
 
-    const handleShow = () => setShow(true);
+    const fetchData = async () => {
+        try {
+            const userData = await getUsers(); 
+            setUsers(userData);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+
+ 
     const filteredUsers = users.filter(user =>
         user.name.toLowerCase().includes(searchInput.toLowerCase())
     );
@@ -38,9 +48,6 @@ const Id = () => {
         navigate(`/Userdetails/${userId}`);
     };
 
-    const handleSearchChange = (value) => {
-        setSearchInput(value);
-    };
 
 
     return (

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button, Form } from 'react-bootstrap';
 
 const EditUserForm = ({ user, onSave, onClose }) => {
     const [formData, setFormData] = useState({
@@ -9,18 +9,41 @@ const EditUserForm = ({ user, onSave, onClose }) => {
         status: ''
     });
 
+    const [errors, setErrors] = useState({
+        name: '',
+        email: ''
+    });
+
     useEffect(() => {
-        setFormData({ ...user });
+        setFormData({ ...user }); 
     }, [user]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
+        validateField(name, value); // Validate the field on change
+    };
+
+    const validateField = (name, value) => {
+        let errorMessage = '';
+        switch (name) {
+            case 'name':
+                errorMessage = value.trim() === '' ? 'Name is required' : '';
+                break;
+            case 'email':
+                errorMessage = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? '' : 'Invalid email format';
+                break;
+            default:
+                break;
+        }
+        setErrors({ ...errors, [name]: errorMessage });
     };
 
     const handleSave = () => {
-        onSave(formData);
-        onClose();
+        if (Object.values(errors).every(error => error === '')) {
+            onSave(formData);
+            onClose();
+        }   
     };
 
     return (
@@ -29,22 +52,26 @@ const EditUserForm = ({ user, onSave, onClose }) => {
                 <Modal.Title>Edit User</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <div>
-                    <h5>Name</h5>
-                    <input className="input-field" type="text" name="name" value={formData.name} onChange={handleInputChange} />
-                </div>
-                <div>
-                    <h5>Email</h5>
-                    <input className="input-field" type="email" name="email" value={formData.email} onChange={handleInputChange} />
-                </div>
-                <div>
-                    <h5>Gender</h5>
-                    <input className="input-field" type="text" name="gender" value={formData.gender} onChange={handleInputChange} />
-                </div>
-                <div>
-                    <h5>Status</h5>
-                    <input className="input-field" type="text" name="status" value={formData.status} onChange={handleInputChange} />
-                </div>
+                <Form>
+                    <Form.Group controlId="name">
+                        <Form.Label>Name</Form.Label>
+                        <Form.Control type="text" name="name" value={formData.name} onChange={handleInputChange} />
+                        {errors.name && <Form.Text className="text-danger">{errors.name}</Form.Text>}
+                    </Form.Group>
+                    <Form.Group controlId="email">
+                        <Form.Label>Email</Form.Label>
+                        <Form.Control type="email" name="email" value={formData.email} onChange={handleInputChange} />
+                        {errors.email && <Form.Text className="text-danger">{errors.email}</Form.Text>}
+                    </Form.Group>
+                    <Form.Group controlId="gender">
+                        <Form.Label>Gender</Form.Label>
+                        <Form.Control type="text" name="gender" value={formData.gender} onChange={handleInputChange} />
+                    </Form.Group>
+                    <Form.Group controlId="status">
+                        <Form.Label>Status</Form.Label>
+                        <Form.Control type="text" name="status" value={formData.status} onChange={handleInputChange} />
+                    </Form.Group>
+                </Form>
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={onClose}>

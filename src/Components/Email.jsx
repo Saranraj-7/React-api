@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from "react";
 import { Container, Form } from 'react-bootstrap';
-import axios from "axios";
 import Accordion from 'react-bootstrap/Accordion';
 import './UserForm.css';
+import Api from "../Constant/api";
 import {  useNavigate } from "react-router-dom";
 
 const Id = () => {
@@ -12,21 +12,31 @@ const Id = () => {
     const [selectedUserId, setSelectedUserId] = useState(null);
     const navigate = useNavigate();
     const [searchInput, setSearchInput] = useState("");
-    // const handleClose = () => setShow(false);
+  
+     
+    const getUsers = async () => {
+        try {
+            const response = await Api.getCustomersData()
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching users:', error);
+            throw error;
+        }
+    };
 
     useEffect(() => {
-        axios.get('https://gorest.co.in/public/v2/users', {
-            headers: {
-                Authorization: `Bearer 79a3b1d569005f3bb059d351efbfc433938986d1c759d0c23bee1a7f32e8d27f`
-            }
-        })
-            .then(res => {
-                setUsers(res.data);
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-            });
+        fetchData();
     }, []);
+
+    const fetchData = async () => {
+        try {
+            const userData = await getUsers(); 
+            setUsers(userData);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
 
     const handleShow = () => setShow(true);
     const filteredUsers = users.filter(user =>
@@ -37,11 +47,6 @@ const Id = () => {
         setSelectedUserId(userId);
         navigate(`/Userdetails/${userId}`);
     };
-
-    const handleSearchChange = (value) => {
-        setSearchInput(value);
-    };
-
 
     return (
         <Container>

@@ -1,19 +1,50 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Table } from 'react-bootstrap';
-import Button from 'react-bootstrap/Button';
+import { Modal, Table,Button } from 'react-bootstrap';
 import './UserForm.css';
 import AddUserForm from './AddUserForm';
 import EditUserForm from './EditUserForm';
 import DeleteButton from "./Delete";
-import { getUsers, addUser, editUser, deleteUser } from './api';
 import { MdEditSquare } from "react-icons/md";
 import Swal from 'sweetalert2';
+import Api from "../Constant/api";
 
 const Fetchdata = () => {
     const [users, setUsers] = useState([]);
     const [show, setShow] = useState(false);
     const [editingUser, setEditingUser] = useState(null);
     const [searchInput, setSearchInput] = useState("");
+
+
+    const getUsers = async () => {
+        try {
+            const response = await Api.getCustomersData()
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching users:', error);
+            throw error;
+        }
+    };
+
+    const addUser = async (userData) => {
+        try {
+            const response = await Api.addCustomer(userData)
+            return response.data;
+        } catch (error) {
+            console.error("Error adding user:", error);
+            throw error;
+        }
+    };
+    
+     const editUser = async (userId, userData) => {
+        try {
+            const response = await Api.editCustomer()
+            return response.data;
+        } catch (error) {
+            console.error("Error editing user:", error);
+            throw error;
+        }
+    };
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -33,7 +64,7 @@ const Fetchdata = () => {
         } catch (error) {
         }
     };
-
+    
     const handleEditUser = async (formData) => {
         try {
             const updatedUser = await editUser(editingUser.id, formData);
@@ -59,12 +90,10 @@ const Fetchdata = () => {
                 Swal.fire('Deleted!', 'Your ID has been deleted.', 'success');
             }
         } catch (error) {
-            
             console.error('Error deleting user:', error);
-      
         }
     };
-    
+
     const handleSearchChange = (value) => {
         setSearchInput(value);
     };
@@ -139,6 +168,7 @@ const Fetchdata = () => {
                         ))}
                     </tbody>
                 </Table>
+                
             </div>
         </div>
     );
