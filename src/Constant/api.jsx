@@ -1,6 +1,7 @@
 import instance from "../Interceptor/Interceptor";
 
 export const token = "7ba28fd99cf99393c57d796ef80869a17bb6fb2b1d9d21ff02de0ed0711489c7";
+export 
 
 const Api ={
     getCustomersData:(id)=>{

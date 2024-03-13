@@ -7,13 +7,21 @@ import DeleteButton from "./Delete";
 import { MdEditSquare } from "react-icons/md";
 import Swal from 'sweetalert2';
 import Api from "../Constant/api";
+import LogoutButton from "./logout";
+import { useNavigate } from "react-router-dom";
 
-const Fetchdata = () => {
+const Fetchdata = ({setIsLoggedIn}) => {
     const [users, setUsers] = useState([]);
     const [show, setShow] = useState(false);
     const [editingUser, setEditingUser] = useState(null);
     const [searchInput, setSearchInput] = useState("");
+    const navigate = useNavigate();
 
+    const handleLogout = () => {
+      sessionStorage.clear();
+      setIsLoggedIn(false);
+      navigate('/');
+    };
 
     const getUsers = async () => {
         try {
@@ -35,15 +43,16 @@ const Fetchdata = () => {
         }
     };
     
-     const editUser = async (userId, userData) => {
+    const editUser = async (userId, userData) => {
         try {
-            const response = await Api.editCustomer()
+            const response = await Api.editCustomer(userId, userData);
             return response.data;
         } catch (error) {
             console.error("Error editing user:", error);
             throw error;
         }
     };
+    
 
 
     useEffect(() => {
@@ -111,7 +120,14 @@ const Fetchdata = () => {
 
     return (
         <div className="pe-5">
+            <div className="row flex-row justify-content-between">
+                <div className="col-6">
             <h2 className="pt-4 pb-3 ps-4">Dashboard</h2>
+            </div>
+            <div className="pt-4 pb-3 col-2">
+            <LogoutButton handleLogout={handleLogout}/> 
+            </div>
+            </div>
             <div className="row align-items-center mb-3">
                 <div className="col-md-auto mb-3 mb-md-0">
                 </div>
@@ -168,7 +184,6 @@ const Fetchdata = () => {
                         ))}
                     </tbody>
                 </Table>
-                
             </div>
         </div>
     );
